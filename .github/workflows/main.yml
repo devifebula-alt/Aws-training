@@ -1,0 +1,22 @@
+# creating a simple hello world pipeline
+name: Hello World Pipeline
+
+# trigger when to run the pipeline
+on:
+  push:               # Push means RUN whenever you detect a new code
+    branches:
+      - main
+      - hotfix/*
+
+# Jobs define what to run in the pipeline
+
+jobs:
+  hello-world-job:    # job id
+    runs-on: ubuntu-latest   # specify the OS to run the job
+
+    steps:
+      - name: Checkout code   # step name
+        uses: actions/checkout@v2   # use the checkout action to checkout code
+
+      - name: Say Hello World  # step name
+        run: echo "Hello, World!"   # command to run
