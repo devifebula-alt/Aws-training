@@ -8,8 +8,9 @@
           "s3:GetObject"
         ],
         "Effect": "Allow",
-        "Resource": "arn:aws:s3:::kk-songs984/*",
+        "Resource": "arn:aws:s3:::devifebula-alt-1/*",
         "Principal": "*"
       }
     ]
+
 }
