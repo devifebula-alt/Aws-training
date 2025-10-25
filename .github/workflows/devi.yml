@@ -54,7 +54,7 @@ jobs:
       #   run: aws s3 mb s3://$S3_BUCKET --region $REGION || echo "Bucket may already exist."
 
       - name: Attach S3 bucket policy 
-        run: aws s3api put-bucket-policy --bucket $S3_BUCKET --policy file://DevOps/policy.json
+        run: aws s3api put-bucket-policy --bucket $S3_BUCKET --policy file://policy.json
 
       - name: Configure S3 website hosting
         run: |
