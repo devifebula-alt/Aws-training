@@ -27,12 +27,13 @@ jobs:
 
       - name: Update S3 policy file
         shell: bash
-#        working-directory: ./DevOps
+        # working-directory: ./DevOps
         run: |
-          sed -i "s|arn:aws:s3:::.*|arn:aws:s3:::$S3_BUCKET/*\"|" policy.json
+          # Fix missing comma after Resource line in policy.json
+          sed -i "s|arn:aws:s3:::[^\"/]*/*\",|arn:aws:s3:::$S3_BUCKET/*\",|" policy.json
 
       - name: Display updated policy
-#        working-directory: ./DevOps
+        # working-directory: ./DevOps
         run: cat policy.json
 
   build-and-deploy:
