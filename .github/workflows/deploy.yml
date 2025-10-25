@@ -1,0 +1,28 @@
+name: AWS Deploy
+
+on: workflow_dispatch
+
+jobs:
+  awscheck:    # job id
+    runs-on: ubuntu-latest   # specify the OS to run the job
+
+    steps:
+      - name: Checkout code   # step name
+        uses: actions/checkout@v2   # use the checkout action to checkout code
+
+      - name: "Configure AWS Credentials"
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8
+        uses: aws-actions/configure-aws-credentials@v5.1.0
+        with:
+            # AWS Region, e.g. us-east-2
+            aws-region: us-east-1
+            # AWS Access Key ID. Provide this key if you want to assume a role using access keys rather than a web identity token.
+            aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+            # AWS Secret Access Key. Required if aws-access-key-id is provided.
+            aws-secret-access-key: ${{ secrets.SECRET_KEY }}
+      - name: awscli
+        run: |
+            BUCKET_NAME=${{ github.actor }}-${{ github.run_number }}
+            aws s3 mb s3://$BUCKET_NAME
+            aws s3 ls
