@@ -1,0 +1,66 @@
+name: Deploy Code to S3
+
+on:
+  push:
+    branches:
+      - main
+  # Uncomment the next line if you want to allow manual workflow runs
+  # workflow_dispatch:
+
+env:
+  S3_BUCKET: devifebula-alt-1
+  REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_OUTPUT: json
+
+jobs:
+  verify-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+          
+      - name: Verify environment variables
+        run: |
+          echo "S3 Bucket: $S3_BUCKET"
+          echo "Region: $REGION"
+
+      - name: Update S3 policy file
+        shell: bash
+        working-directory: ./DevOps
+        run: |
+          sed -i "s|arn:aws:s3:::.*|arn:aws:s3:::$S3_BUCKET/*\"|" policy.json
+
+      - name: Display updated policy
+        working-directory: ./DevOps
+        run: cat policy.json
+
+  build-and-deploy:
+    needs: verify-vars
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SECRET_KEY }}
+          aws-region: ${{ env.REGION }}
+    
+      # Uncomment this if you want to auto-create the bucket
+      # - name: Create S3 bucket
+      #   run: aws s3 mb s3://$S3_BUCKET --region $REGION || echo "Bucket may already exist."
+
+      - name: Attach S3 bucket policy 
+        run: aws s3api put-bucket-policy --bucket $S3_BUCKET --policy file://DevOps/policy.json
+
+      - name: Configure S3 website hosting
+        run: |
+          aws s3 website s3://$S3_BUCKET/ \
+            --index-document index.html \
+            --error-document error.html
+
+      - name: Deploy static site to S3
+        run: aws s3 sync . s3://$S3_BUCKET --delete
